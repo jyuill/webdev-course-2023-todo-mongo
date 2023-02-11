@@ -2,7 +2,8 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const date = require(__dirname + "/date.js");
+const mongoose = require("mongoose");
+//const date = require(__dirname + "/date.js");
 
 const app = express();
 
@@ -11,17 +12,61 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-const items = ["Buy Food", "Cook Food", "Eat Food"];
-const workItems = [];
-
-app.get("/", function(req, res) {
-
-const day = date.getDate();
-
-  res.render("list", {listTitle: day, newListItems: items});
-
+// create mongodb database
+mongoose.connect("mongodb://localhost:27017/todolistDB");
+// SCHEMA
+const itemsSchema = new mongoose.Schema ({
+  task : String
 });
+// COLLECTION - create model that refers to collection
+const Item = mongoose.model("Item", itemsSchema);
 
+// DOCUMENT - set defaults
+const item_01 = new Item ({
+  task: 'Check email'
+});
+const item_02 = new Item ({
+  task: 'Pay bills'
+});
+const item_03 = new Item ({
+  task: 'Go for run'
+});
+// combine in array
+const defaultItems = [item_01, item_02, item_03];
+// INSERT to database collection
+/*
+Item.insertMany( defaultItems, function(err) {
+  if (err) {
+    console.log(err);
+} else {
+    console.log("items added!");
+}
+});
+*/
+// fetch DOCUMENTS in COLLECTION
+/*
+Item.find({}, function(err, item_all) {
+  if (err) {
+      console.log(err);
+  } else {
+      console.log("all tasks: ",item_all);
+  }
+});
+*/
+
+app.get("/", function(req, res) {  
+// fetch DOCUMENTS in COLLECTION
+Item.find({}, function(err, item_all) {
+  if (err) {
+      console.log(err);
+  } else {
+      console.log("all tasks: ",item_all);
+      res.render("list", {listTitle: "Tasks", newListItems: item_all});
+      }
+});
+  
+});
+/*
 app.post("/", function(req, res){
 
   const item = req.body.newItem;
@@ -42,7 +87,8 @@ app.get("/work", function(req,res){
 app.get("/about", function(req, res){
   res.render("about");
 });
+*/
 
-app.listen(3000, function() {
-  console.log("Server started on port 3000");
+app.listen(3600, function() {
+  console.log("Server started on port 3600");
 });
