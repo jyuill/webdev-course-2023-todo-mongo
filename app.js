@@ -57,14 +57,31 @@ Item.find({}, function(err, item_all) {
 app.get("/", function(req, res) {  
 // fetch DOCUMENTS in COLLECTION
 Item.find({}, function(err, item_all) {
+  //
+  if (item_all.length===0) {
+    Item.insertMany( defaultItems, function(err) {
+      if (err) {
+        console.log(err);
+    } else {
+        console.log("items added!");
+    }
+    });
+    res.redirect("/");
+  } else {
+    res.render("list", {listTitle: "Tasks", newListItems: item_all});
+  };
+});
+
+  //
+  /*
   if (err) {
       console.log(err);
   } else {
-      console.log("all tasks: ",item_all);
+      //console.log("all tasks: ",item_all);
       res.render("list", {listTitle: "Tasks", newListItems: item_all});
       }
 });
-  
+  */
 });
 /*
 app.post("/", function(req, res){
