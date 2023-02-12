@@ -56,47 +56,54 @@ Item.find({}, function(err, item_all) {
 
 app.get("/", function(req, res) {  
 // fetch DOCUMENTS in COLLECTION
-Item.find({}, function(err, item_all) {
-  //
-  if (item_all.length===0) {
-    Item.insertMany( defaultItems, function(err) {
-      if (err) {
-        console.log(err);
-    } else {
-        console.log("items added!");
-    }
+  Item.find({}, function(err, item_all) {
+    // check for items in db -> if none, add defaults
+    if (item_all.length===0) {
+      Item.insertMany( defaultItems, function(err) {
+        if (err) {
+          console.log(err);
+      } else {
+          console.log("items added!");
+      }
+      });
+      // reload hm pg with new items added
+      res.redirect("/");
+    } else {  // if already items, display
+      res.render("list", {listTitle: "Tasks", newListItems: item_all});
+    };
+  });
+});
+  
+app.post("/", function(req, res) {
+  // get new item entered in form
+  const itemTask = req.body.newItem;
+  // set up for adding to db
+  const item = new Item ({
+     task: itemTask
     });
-    res.redirect("/");
-  } else {
-    res.render("list", {listTitle: "Tasks", newListItems: item_all});
-  };
+  // same item in mongodb
+  item.save();
+  // redirect/refresh to show new item -> doesn't work until subsequent refresh
+  res.redirect("/");
 });
 
-  //
-  /*
-  if (err) {
+app.post("/delete", function(req, res) {
+  //console.log(req.body);
+  // get item id from checked box
+  const checkedItemId = req.body.checkDelete;
+  //console.log(checkedItemId);
+  // remove item based on id
+  Item.findByIdAndRemove(checkedItemId, function(err) {
+    if(err) {
       console.log(err);
-  } else {
-      //console.log("all tasks: ",item_all);
-      res.render("list", {listTitle: "Tasks", newListItems: item_all});
-      }
-});
-  */
+    } else {
+      console.log("item deleted: ",checkedItemId);
+    }
+  }); 
+  // refresh hm pg to remove item -> doesn't work until subsequent refresh
+  res.redirect("/");
 });
 /*
-app.post("/", function(req, res){
-
-  const item = req.body.newItem;
-
-  if (req.body.list === "Work") {
-    workItems.push(item);
-    res.redirect("/work");
-  } else {
-    items.push(item);
-    res.redirect("/");
-  }
-});
-
 app.get("/work", function(req,res){
   res.render("list", {listTitle: "Work List", newListItems: workItems});
 });
