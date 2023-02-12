@@ -16,20 +16,25 @@ app.use(express.static("public"));
 mongoose.connect("mongodb://localhost:27017/todolistDB");
 // SCHEMA
 const itemsSchema = new mongoose.Schema ({
-  task : String
+  task : String,
+  status: String
 });
+
 // COLLECTION - create model that refers to collection
 const Item = mongoose.model("Item", itemsSchema);
 
 // DOCUMENT - set defaults
 const item_01 = new Item ({
-  task: 'Check email'
+  task: 'Check email',
+  status: 'active'
 });
 const item_02 = new Item ({
-  task: 'Pay bills'
+  task: 'Pay bills',
+  status: 'active'
 });
 const item_03 = new Item ({
-  task: 'Go for run'
+  task: 'Go for run',
+  status: 'active'
 });
 // combine in array
 const defaultItems = [item_01, item_02, item_03];
@@ -54,6 +59,15 @@ Item.find({}, function(err, item_all) {
 });
 */
 
+// new schema for lists - to create separate task lists
+const listSchema = {
+  name: String,
+  items: [itemsSchema]
+};
+// list COLLECTION: create mongoose model - for separate task lists
+const List = mongoose.model("List", listSchema);
+
+// HOME page
 app.get("/", function(req, res) {  
 // fetch DOCUMENTS in COLLECTION
   Item.find({}, function(err, item_all) {
@@ -73,13 +87,31 @@ app.get("/", function(req, res) {
     };
   });
 });
-  
+
+// CUSTOM LIST PAGES
+app.get("/:customListName", function(req, res) {
+  const customListName = req.params.customListName;
+  List.findOne({name: customListName}, function(err, list_exist) {
+    if(list_exists.length===0) {
+      const list = new List({
+        name: customListName,
+        items: defaultItems
+      });
+      list.save();
+    } else {
+      console.log("already exists")
+    }
+  });
+    
+});
+
 app.post("/", function(req, res) {
   // get new item entered in form
   const itemTask = req.body.newItem;
   // set up for adding to db
   const item = new Item ({
-     task: itemTask
+     task: itemTask,
+     status: 'active'
     });
   // same item in mongodb
   item.save();
