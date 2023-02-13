@@ -113,21 +113,33 @@ app.get("/:customListName", function(req, res) {
   });
     
 });
-
+// add new item
 app.post("/", function(req, res) {
   // get new item entered in form
   const itemTask = req.body.newItem;
-  // set up for adding to db
+  const listName = req.body.list;
+  // set up for adding to db: task name and active status (default)
   const item = new Item ({
      task: itemTask,
      status: 'active'
     });
-  // same item in mongodb
-  item.save();
-  // redirect/refresh to show new item -> doesn't work until subsequent refresh
-  res.redirect("/");
-});
+  // check if home page (list title: 'Tasks' or custom)
+  // hm pg (listName set as 'Tasks')
+  if(listName === 'Tasks'){
+    // same item in mongodb
+    item.save();
+    // redirect/refresh to show new item -> doesn't work until subsequent refresh
+    res.redirect("/");
+  } else { // custom pg
+    List.findOne({name: listName}, function(err, foundList) {
+      foundList.items.push(item);
+      foundList.save();
+      res.redirect("/" + listName);
+    });
+  }
 
+}); // end app.post
+// delete item
 app.post("/delete", function(req, res) {
   //console.log(req.body);
   // get item id from checked box
