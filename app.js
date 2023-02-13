@@ -92,15 +92,24 @@ app.get("/", function(req, res) {
 app.get("/:customListName", function(req, res) {
   const customListName = req.params.customListName;
   List.findOne({name: customListName}, function(err, list_exist) {
-    if(list_exists.length===0) {
-      const list = new List({
-        name: customListName,
-        items: defaultItems
-      });
-      list.save();
-    } else {
-      console.log("already exists")
-    }
+    if(!err){
+      if(!list_exist){
+        //console.log("List doesn't exist");
+        // create new list
+        const list = new List({
+          name: customListName,
+          items: defaultItems
+        });
+        // save new list
+        list.save();
+        // reload pg to show items
+        res.redirect("/" + customListName);
+      } else {
+        // console.log("List exists!");
+        // show existing list on custom pg
+        res.render("list", {listTitle: list_exist.name , newListItems: list_exist.items})
+      }
+    } // end if
   });
     
 });
