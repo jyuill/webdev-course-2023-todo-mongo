@@ -81,7 +81,7 @@ app.get("/", function(req, res) {
       }
       });
       // reload hm pg with new items added
-      res.redirect("/");
+      return res.redirect("/");
     } else {  // if already items, display
       res.render("list", {listTitle: "Tasks", newListItems: item_all});
     };
@@ -130,6 +130,7 @@ app.post("/", function(req, res) {
     item.save();
     // redirect/refresh to show new item -> doesn't work until subsequent refresh
     res.redirect("/");
+    console.log("res.redirect fired");
   } else { // custom pg
     List.findOne({name: listName}, function(err, foundList) {
       foundList.items.push(item);
@@ -139,6 +140,7 @@ app.post("/", function(req, res) {
   }
 
 }); // end app.post
+
 // delete item
 app.post("/delete", function(req, res) {
   //console.log(req.body);
