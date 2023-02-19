@@ -3,6 +3,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const _ = require("lodash"); 
 //const date = require(__dirname + "/date.js");
 
 const app = express();
@@ -90,7 +91,7 @@ app.get("/", function(req, res) {
 
 // CUSTOM LIST PAGES
 app.get("/:customListName", function(req, res) {
-  const customListName = req.params.customListName;
+  const customListName = _.capitalize(req.params.customListName)eo;
   List.findOne({name: customListName}, function(err, list_exist) {
     if(!err){
       if(!list_exist){
@@ -146,17 +147,33 @@ app.post("/delete", function(req, res) {
   //console.log(req.body);
   // get item id from checked box
   const checkedItemId = req.body.checkDelete;
+  const listName = req.body.listDel;
   //console.log(checkedItemId);
+  console.log(listName);
   // remove item based on id
-  Item.findByIdAndRemove(checkedItemId, function(err) {
-    if(err) {
-      console.log(err);
-    } else {
-      console.log("item deleted: ",checkedItemId);
-    }
-  }); 
-  // refresh hm pg to remove item -> doesn't work until subsequent refresh
-  res.redirect("/");
+  // determine page for redirect
+  if(listName === "Tasks") {
+    Item.findByIdAndRemove(checkedItemId, function(err) {
+      if(err) {
+        console.log(err);
+      } else {
+        console.log("item deleted: ",checkedItemId);
+        // refresh hm pg to remove item -> doesn't work until subsequent refresh
+        res.redirect("/");
+      }
+    }); 
+  } else {
+    List.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkedItemId}}}, function(err, foundList) {
+      if(err) {
+        //console.log("fail: ", listName, checkedItemId); 
+      } else {
+        //console.log("success");
+        res.redirect("/" + listName);
+      }
+    });
+  }
+  
+  
 });
 /*
 app.get("/work", function(req,res){
