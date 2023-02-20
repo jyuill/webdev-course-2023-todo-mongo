@@ -14,7 +14,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
 // create mongodb database
-mongoose.connect("mongodb://localhost:27017/todolistDB");
+// local server
+// mongoose.connect("mongodb://localhost:27017/todolistDB");
+// cloud server - atlas
+mongoose.connect("mongodb+srv://johnyuill:GdzvBcNtAOZQfAqZ@cluster0.6y3ftfo.mongodb.net/?retryWrites=true&w=majority")
+
 // SCHEMA
 const itemsSchema = new mongoose.Schema ({
   task : String,
@@ -91,7 +95,7 @@ app.get("/", function(req, res) {
 
 // CUSTOM LIST PAGES
 app.get("/:customListName", function(req, res) {
-  const customListName = _.capitalize(req.params.customListName)eo;
+  const customListName = _.capitalize(req.params.customListName);
   List.findOne({name: customListName}, function(err, list_exist) {
     if(!err){
       if(!list_exist){
