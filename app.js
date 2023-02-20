@@ -17,7 +17,10 @@ app.use(express.static("public"));
 // local server
 // mongoose.connect("mongodb://localhost:27017/todolistDB");
 // cloud server - atlas
-mongoose.connect("mongodb+srv://johnyuill:GdzvBcNtAOZQfAqZ@cluster0.6y3ftfo.mongodb.net/?retryWrites=true&w=majority")
+// works - creates new collection 'test'
+//mongoose.connect("mongodb+srv://johnyuill:GdzvBcNtAOZQfAqZ@cluster0.6y3ftfo.mongodb.net/?retryWrites=true&w=majority")
+// works - specify collection name at end
+mongoose.connect("mongodb+srv://johnyuill:GdzvBcNtAOZQfAqZ@cluster0.6y3ftfo.mongodb.net/todolistDB")
 
 // SCHEMA
 const itemsSchema = new mongoose.Schema ({
