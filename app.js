@@ -192,6 +192,19 @@ app.get("/about", function(req, res){
 });
 */
 
+/* for running locally
 app.listen(3600, function() {
   console.log("Server started on port 3600");
+});
+*/
+// basic Heroku setup
+//app.listen(process.env.PORT);
+
+// adapted for Heroku as well as local
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3600;
+}
+app.listen(port, function() {
+  console.log("server has started successfully");
 });
